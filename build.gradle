@@ -1,19 +1,48 @@
 buildscript {
+    System.setProperty("com.android.build.gradle.overrideVersionCheck", "true")
+
+    apply from: 'build_system/dependencies.gradle'
+
     repositories {
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath gradlePlugins.android
 
+        // Kotlin extension
+        classpath gradlePlugins.kotlin
+
+        // Kotlin Android extension
+        classpath gradlePlugins.kotlinAndroid
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        maven { url "https://clojars.org/repo/" }
+        maven { url "https://jitpack.io" }
+    }
+
+    // Workaround to prevent Gradle from stealing focus from other apps during tests run/etc.
+    // https://gist.github.com/artem-zinnatullin/4c250e04636e25797165
+    tasks.withType(JavaForkOptions) {
+        jvmArgs '-Djava.awt.headless=true'
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext.preDexLibs = !project.hasProperty('disablePreDex')
+subprojects {
+    project.plugins.whenPluginAdded { plugin ->
+        if ('com.android.build.gradle.AppPlugin'.equals(plugin.class.name) ||
+                'com.android.build.gradle.LibraryPlugin'.equals(plugin.class.name)) {
+            // enable or disable pre-dexing
+            project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
+        }
+    }
 }

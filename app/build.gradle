@@ -1,29 +1,214 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion app.androidCompileSdkVersion
+    buildToolsVersion app.androidBuildToolsVersion
+
     defaultConfig {
-        applicationId "com.lenguyenthanh.todoapp"
-        minSdkVersion 19
-        targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        applicationId app.androidApplicationId
+        minSdkVersion app.androidMinSdkVersion
+        targetSdkVersion app.androidTargetSdkVersion
+        versionCode app.androidVersionCode
+        versionName app.androidVersionName
+        testInstrumentationRunner app.testInstrumentationRunner
     }
+
+    signingConfigs {
+
+        debug {
+            storeFile rootProject.file('build_system/debug.keystore')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
+        }
+
+        prod {
+            storeFile rootProject.file('build_system/debug.keystore')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.prod
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+
+        // Unit tests live in src/unitTest.
+        test.java.srcDir 'src/test/java'
+
+        // Integration tests live in src/integrationTest.
+        test.java.srcDir 'src/integrationTests/java'
+        test.resources.srcDirs 'src/integrationTests/resources'
+
+        // Unit tests for debug build type specific code live in src/debugUnitTest.
+        testDebug.java.srcDir 'src/debugUnitTests/java'
+
+        // Unit tests for release build type specific code live in src/releaseUnitTest.
+        testRelease.java.srcDir 'src/releaseUnitTests/java'
+
+        // Functional tests live in src/functionalTests.
+        androidTest.java.srcDir 'src/functionalTests/java'
+    }
+
+    lintOptions {
+        warningsAsErrors false
+        abortOnError false // Fail early.
+
+        disable 'GoogleAppIndexingWarning' // App does not have deep linking.
+        disable 'InvalidPackage' // Okio references java.nio that does not presented in Android SDK.
+    }
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    // This allows us see tests execution progress in the output on the CI.
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+            exceptionFormat 'full'
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+}
+
+kapt {
+    generateStubs = true
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    testCompile 'junit:junit:4.12'
+    // Kotlin
+    compile libraries.kotlinStdlib
+
+    // Fragment
+    compile libraries.conductor
+    compile libraries.conductorSupport
+
+    // Reactive
+    compile libraries.rxJava
+    compile libraries.rxAndroid
+
+    // UI
+    compile libraries.mdCore
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    // Dagger 2
+    compile libraries.dagger
+    kapt libraries.daggerCompiler
+
+    // Support libraries
+    compile libraries.supportAppCompat
+    compile libraries.supportDesign
+    compile libraries.supportRecyclerView
+    compile libraries.supportCardView
+    compile libraries.supportV4
+
+    // Utilities
+    compile libraries.timber
+
+    // Parcelable
+    compile libraries.paperparcel
+    compile libraries.paperparcelKotlin
+    kapt libraries.paperparcelCompiler
+
+    // Sqlite
+    kapt 'com.google.auto.value:auto-value:1.3'
+    provided 'com.jakewharton.auto.value:auto-value-annotations:1.3'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
+
+    // debug tools
+    debugCompile libraries.okHttpLoggingInterceptor
+    debugCompile libraries.leakCanary
+    debugCompile libraries.processPhoenix
+    debugCompile libraries.takt
+    debugCompile libraries.scalpel
+
+    debugCompile libraries.debugdrawer
+    debugCompile libraries.debugdrawerView
+    debugCompile libraries.debugdrawerScalpel
+    debugCompile libraries.debugdrawerTimber
+    debugCompile libraries.debugdrawerFps
+    debugCompile libraries.debugdrawerActions
+    debugCompile libraries.debugdrawerCommons
+    debugCompile libraries.debugdrawerOkhttp3
+
+    testCompile libraries.kotlinTest
+    testCompile libraries.junit
+    testCompile libraries.robolectric
+    testCompile libraries.equalsVerifier
+    testCompile libraries.okHttpMockWebServer
+    testCompile libraries.mockitoCore
+    testCompile libraries.daggerMock
+    testCompile libraries.mockitoKotlin
+    testCompile libraries.commonIO
+    testCompile libraries.assertJ
+
+    androidTestCompile libraries.supportTestRunner
+    androidTestCompile libraries.supportTestRules
+    androidTestCompile libraries.espressoCore
+    androidTestCompile(libraries.espressoContrib) {
+        // Causes IncompatibleClassChangeError. As always…
+        exclude module: 'support-annotations'
+        exclude module: 'recyclerview-v7'
+        exclude module: 'support-v4'
+    }
+    androidTestCompile libraries.okHttpMockWebServer
+}
+
+buildscript {
+    ext.kotlin_version = '1.0.4'
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // Kotlin Android extension
+        classpath gradlePlugins.kotlinAndroid
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+    }
+}
+
+def installAll = tasks.create('installAll')
+installAll.description = 'Install all applications.'
+
+android.applicationVariants.all { variant ->
+    installAll.dependsOn variant.install
+    // Ensure we end up in the same group as the other install tasks.
+    installAll.group = variant.install.group
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Force our version of support-annotations, we have a conflict between app and androidTest dependency resolution.
+        force libraries.jetbrainsAnnotations
+        force libraries.supportAnnotations
+        force libraries.dagger
+        force libraries.kotlinStdlib
+        force libraries.okHttp
+    }
+}
+repositories {
+    jcenter()
 }
