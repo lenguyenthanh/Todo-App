@@ -6,7 +6,9 @@ data class Task(
         val id: Long,
         val name: String,
         val state: Int
-)
+){
+    fun isDone() = state == 1
+}
 
 fun TaskDb.toTask(): Task {
     val state = if(state()) 1 else 0

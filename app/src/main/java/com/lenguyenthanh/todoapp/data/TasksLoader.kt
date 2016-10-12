@@ -11,22 +11,24 @@ import com.lenguyenthanh.todoapp.model.Task
 import com.lenguyenthanh.todoapp.model.toTask
 import com.squareup.sqlbrite.BriteDatabase
 import rx.Observable
+import rx.schedulers.Schedulers
 import timber.log.Timber
 
 interface TasksLoader {
     fun fetchData()
     fun fetchDoneTasks(): Observable<List<Task>>
     fun fetchPendingTask(): Observable<List<Task>>
-    fun markTaskAsDone(id: Int): Observable<Boolean>
-    fun markTaskAsPending(id: Int): Observable<Boolean>
-    fun deleteATask(id: Int): Observable<Boolean>
-    fun undoATask(id: Int): Observable<Boolean>
+    fun createTask(name: String): Observable<Long>
+    fun markTaskAsDone(id: Long, name: String): Observable<Int>
+    fun markTaskAsPending(id: Long, name: String): Observable<Int>
+    fun deleteATask(id: Long): Observable<Long>
+    fun undoATask(id: Long): Observable<Long>
 }
 
 class TasksLoaderImpl(private val briteDatabase: BriteDatabase, private val taskService: TaskService, private val sharedPreferences: SharedPreferences) : TasksLoader {
 
     override fun fetchData() {
-        if (sharedPreferences.isLoaded()) {
+        if (!sharedPreferences.isLoaded()) {
             fetchTasksFromApi()
         }
     }
@@ -45,24 +47,49 @@ class TasksLoaderImpl(private val briteDatabase: BriteDatabase, private val task
                 .map { it.map { it.toTask() } }
     }
 
-    override fun markTaskAsDone(id: Int): Observable<Boolean> {
+    override fun createTask(name: String): Observable<Long> {
+        return getMaxId()
+                .first()
+                .flatMap {
+                    Observable.fromCallable {
+                        briteDatabase.insert(TaskDb.TABLE_NAME, TaskDb.FACTORY.marshal()
+                                .id(it + 1)
+                                .name(name)
+                                .state(false)
+                                .asContentValues())
+                    }
+                }
+    }
+
+    override fun markTaskAsDone(id: Long, name: String): Observable<Int> {
+        return changeTaskState(id, name, isDone = true)
+    }
+
+    override fun markTaskAsPending(id: Long, name: String): Observable<Int> {
+        return changeTaskState(id, name, isDone = false)
+    }
+
+    private fun changeTaskState(id: Long, name: String, isDone: Boolean): Observable<Int> {
+        return Observable.fromCallable {
+            briteDatabase.update(TaskDb.TABLE_NAME, TaskDb.FACTORY.marshal()
+                    .id(id)
+                    .state(isDone)
+                    .name(name)
+                    .asContentValues(), TaskDb.ID + " = ?", "$id")
+        }
+    }
+
+    override fun deleteATask(id: Long): Observable<Long> {
         throw UnsupportedOperationException("not implemented")
     }
 
-    override fun markTaskAsPending(id: Int): Observable<Boolean> {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun deleteATask(id: Int): Observable<Boolean> {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun undoATask(id: Int): Observable<Boolean> {
+    override fun undoATask(id: Long): Observable<Long> {
         throw UnsupportedOperationException("not implemented")
     }
 
     private fun fetchTasksFromApi() {
         taskService.items()
+                .subscribeOn(Schedulers.io())
                 .map { it.data }
                 .map { insert2Db(it) }
                 .subscribe({
@@ -87,5 +114,14 @@ class TasksLoaderImpl(private val briteDatabase: BriteDatabase, private val task
         } finally {
             transaction.end()
         }
+    }
+
+    private fun getMaxId(): Observable<Long> {
+        return briteDatabase.createQuery(TaskDb.TABLE_NAME, TaskDb.SELECT_ALL)
+                .map { it.run() }
+                .map { it.mapTo(TaskDb.SELECT_DONE_TASK_MAPPER) }
+                .map { it.map { it.id() } }
+                .map { it.max() }
+                .map { it ?: 0L }
     }
 }

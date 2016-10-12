@@ -1,6 +1,7 @@
 package com.lenguyenthanh.todoapp.app.config
 
 import android.app.Application
+import com.facebook.stetho.Stetho
 import com.lenguyenthanh.todoapp.config.MainInitializer
 import timber.log.Timber
 import javax.inject.Inject
@@ -14,5 +15,6 @@ class DebugInitializer @Inject constructor(application: Application, forest: Lis
     override fun initialize() {
         super.initialize()
         application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
+        Stetho.initializeWithDefaults(application)
     }
 }

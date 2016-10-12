@@ -12,26 +12,22 @@ class TodoAppSqlHelper : SQLiteOpenHelper {
 
     companion object {
         private val DATABASE_VERSION = 1
-        private var instance: BriteDatabase? = null
+
         fun getBriteDatabase(context: Context): BriteDatabase {
-            if (instance == null) {
-                val sqlBrite = SqlBrite.create()
-                instance = sqlBrite.wrapDatabaseHelper(TodoAppSqlHelper(context), Schedulers.io())
-            }
-            return instance!!
+            val sqlBrite = SqlBrite.create()
+            return sqlBrite.wrapDatabaseHelper(TodoAppSqlHelper(context), Schedulers.io())
         }
     }
 
-    constructor(context: Context) : super(context, null, null, DATABASE_VERSION) {
+    constructor(context: Context) : super(context, "todo.db", null, DATABASE_VERSION) {
 
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(TaskDb.CREATE_TABLE);
+        db.execSQL(TaskDb.CREATE_TABLE)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
     }
 
 }
-

@@ -9,4 +9,10 @@
 
     <string name="done">Done</string>
     <string name="pending">Pending</string>
+
+
+    <string name="menu_add_task">Add Task</string>
+
+    <string name="add_new_task">Add New Task</string>
+    <string name="add_new_task_hint">Task\'s name</string>
 </resources>

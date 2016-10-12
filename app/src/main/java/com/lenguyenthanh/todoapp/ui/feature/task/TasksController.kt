@@ -43,7 +43,6 @@ open class TasksController : StatefulController<List<Task>> {
     private var isDone = true
 
     constructor() : super()
-
     constructor(bundle: Bundle?) : super(bundle) {
         bundle?.let {
             isDone = it.getBoolean(KEY_IS_DONE)
@@ -52,7 +51,12 @@ open class TasksController : StatefulController<List<Task>> {
 
     private val tasksAdapter by lazy {
         TasksAdapter(activity.layoutInflater) {
-
+            val exe = if (!it.isDone()) {
+                tasksLoader.markTaskAsDone(it.id, it.name)
+            } else {
+                tasksLoader.markTaskAsPending(it.id, it.name)
+            }
+            exe.subscribe({Timber.d("Index $it")},{Timber.e(it, "Update task state error")})
         }
     }
 
@@ -108,5 +112,9 @@ open class TasksController : StatefulController<List<Task>> {
     override fun setData(data: List<Task>) {
         super.setData(data)
         tasksAdapter.replaceData(data)
+    }
+
+    override fun isEmpty(data: List<Task>): Boolean {
+        return data.isEmpty()
     }
 }

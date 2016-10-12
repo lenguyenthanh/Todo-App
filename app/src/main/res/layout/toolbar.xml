@@ -8,6 +8,5 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/MdToolbar"
-        android:title="@string/app_name"
         />
 </android.support.design.widget.AppBarLayout>
