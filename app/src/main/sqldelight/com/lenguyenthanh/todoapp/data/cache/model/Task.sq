@@ -1,0 +1,25 @@
+CREATE TABLE task (
+  _id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id INTEGER NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  state INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+select_All:
+SELECT *
+FROM task;
+
+select_By_Id:
+SELECT *
+FROM task
+WHERE task.id = ?;
+
+select_Pending_Taks:
+SELECT *
+FROM task
+Where task.state = 0;
+
+select_Done_Taks:
+SELECT *
+FROM task
+Where task.state = 1;

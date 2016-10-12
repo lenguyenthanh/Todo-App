@@ -6,4 +6,7 @@
 
     <string name="no_task">Sorry, you don\'t have any tasks!</string>
     <string name="btn_text_retry">Press here to retry</string>
+
+    <string name="done">Done</string>
+    <string name="pending">Pending</string>
 </resources>

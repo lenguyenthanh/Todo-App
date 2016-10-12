@@ -7,3 +7,10 @@ inline fun SharedPreferences.quickEdit(func: SharedPreferences.Editor.() -> Unit
     editor.func()
     editor.apply()
 }
+
+fun SharedPreferences.isLoaded(): Boolean =
+        getBoolean("is.Loaded", false)
+
+fun SharedPreferences.setLoaded(isLoaded: Boolean) = this.quickEdit {
+    putBoolean("is.Loaded", isLoaded)
+}

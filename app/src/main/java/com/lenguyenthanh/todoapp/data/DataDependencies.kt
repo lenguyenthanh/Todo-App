@@ -1,9 +1,11 @@
 package com.lenguyenthanh.todoapp.data
 
 import android.content.SharedPreferences
-import com.google.gson.Gson
+import com.squareup.moshi.Moshi
+import com.squareup.sqlbrite.BriteDatabase
 
-interface DataDependencies {
+interface DataDependencies{
     fun sharedPreferences(): SharedPreferences
-    fun gson(): Gson
+    fun briteDatabase(): BriteDatabase
+    fun moshi(): Moshi
 }

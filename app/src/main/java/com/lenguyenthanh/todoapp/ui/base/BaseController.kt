@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.lenguyenthanh.todoapp.app.MainActivity
 import com.bluelinelabs.conductor.Controller
+import com.lenguyenthanh.todoapp.app.MainActivity
 import rx.subscriptions.CompositeSubscription
 
 abstract class BaseController : Controller {
@@ -42,6 +42,7 @@ abstract class BaseController : Controller {
     }
 
     open protected fun preCreateView() {
+
     }
 
 }

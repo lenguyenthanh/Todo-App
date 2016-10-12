@@ -9,7 +9,7 @@ import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.Router
 import com.lenguyenthanh.todoapp.R
 import com.lenguyenthanh.todoapp.common.extentions.setRoot
-import com.lenguyenthanh.todoapp.ui.feature.todo.TasksController
+import com.lenguyenthanh.todoapp.ui.feature.task.TaskTabController
 import me.henrytao.mdcore.core.MdCore
 import timber.log.Timber
 
@@ -62,6 +62,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun rootController(): Controller {
-        return TasksController()
+        return TaskTabController()
     }
 }
