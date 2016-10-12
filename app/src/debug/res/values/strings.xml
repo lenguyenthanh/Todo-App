@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">To do App Debug</string>
+    <string name="no_data">#NO DATA#</string>
+</resources>

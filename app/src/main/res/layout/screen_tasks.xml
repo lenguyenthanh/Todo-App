@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.lenguyenthanh.todoapp.ui.widget.BetterViewAnimator
+        android:id="@+id/contentLayout"
+        style="@style/viewAnimatorStyle">
+
+        <ProgressBar
+            android:id="@+id/loadingView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+        />
+
+        <TextView
+            android:id="@+id/emptyView"
+            style="@style/MdTextField.TextOnly"
+            android:text="@string/no_task"
+            android:layout_gravity="center"
+            android:gravity="center"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/contentView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+        <Button
+            android:id="@+id/errorView"
+            style="@style/MdButton"
+            android:text="@string/btn_text_retry"
+            android:layout_gravity="center"
+            />
+
+    </com.lenguyenthanh.todoapp.ui.widget.BetterViewAnimator>
+
+</android.support.design.widget.CoordinatorLayout>

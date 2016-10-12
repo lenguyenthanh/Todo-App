@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Todo App</string>
+    <string name="generic_error_message">Sorry, an error occurred.</string>
+    <string name="error_network_connection">Could not connect to the server. Please check that you currently have Internet connectivity.</string>
+    <string name="error_time_out">The request timed out. Please try again.</string>
+
+    <string name="no_task">Sorry, you don\'t have any tasks!</string>
+    <string name="btn_text_retry">Press here to retry</string>
 </resources>
